@@ -20,18 +20,20 @@ use Strukt\Process\Process;
 
 require 'vendor/autoload.php';
 
-$password = "p@55w0rd";
+// $password = "p@55w0rd";
 
-//$p = Process::run("ls");
-$p = Process::run("read password ; echo \$password", function(){
+// $p = Process::run("ls");
+// $p = Process::run("read password ; echo \$password", function(){
+$p = Process::run("ping 127.0.0.1", function($streamOutput){
 
+	echo $streamOutput;
 	//wait 5 seconds before continuing
-	sleep(5);
+	// sleep(5);
 });
 
-$p->write($password);
-$p->closeInput();
+// $p->write($password);
+// $p->closeInput();
 
-//$error = $p->error();
-$output = $p->read();
+// $error = $p->error();
+// $output = $p->read();
 ```

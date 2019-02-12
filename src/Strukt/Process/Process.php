@@ -42,7 +42,7 @@ class Process{
         $evt = Event::newEvent($callback);
 
         while($this->isRunning())
-            $evt->exec();
+            $evt->apply(fgets($this->stdout))->exec();
     }
     
     public function read(){
