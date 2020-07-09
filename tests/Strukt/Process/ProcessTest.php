@@ -36,7 +36,16 @@ class ProcessTest extends TestCase{
 		$this->assertEquals($error, "expr: division by zero\n");
 	}
 
+	public function isWindows(){
+
+		return strtoupper(substr(PHP_OS, 0, 3)) == "WIN";
+	}
+
 	public function testInput(){
+
+		// Stop here and mark this test as incomplete.
+		if($this->isWindows())
+        	$this->markTestSkipped("Test cannot be run on Windows!");
 
 		$password = "p@55w0rd**9\n";
 
