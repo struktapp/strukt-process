@@ -1,10 +1,8 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use Strukt\Process;
 
-use Strukt\Process\Process;
-
-class ProcessTest extends TestCase{
+class ProcessTest extends PHPUnit\Framework\TestCase{
 
 	public function testProcessSuccess(){
 

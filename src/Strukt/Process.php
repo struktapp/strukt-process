@@ -1,8 +1,8 @@
 <?php
 
-namespace Strukt\Process;
+namespace Strukt;
 
-use Strukt\Event\Event;
+use Strukt\Event;
 
 class Process{
 
@@ -39,7 +39,7 @@ class Process{
 
     public function wait(\Closure $callback){
 
-        $evt = Event::newEvent($callback);
+        $evt = Event::create($callback);
 
         while($this->isRunning())
             $evt->apply(fgets($this->stdout))->exec();
