@@ -16,20 +16,22 @@ composer require strukt/process dev-master
 #!/usr/bin/env php
 <?php
 
-use Strukt\Process\Process;
+use Strukt\Process;
 
 require 'vendor/autoload.php';
 
 // $password = "p@55w0rd";
 
-// $p = Process::run("ls");
-// $p = Process::run("read password ; echo \$password", function(){
-$p = Process::run("ping 127.0.0.1", function($streamOutput){
+// $p = Process::run(["ls", "ls -al"]);
+// $p = Process::run(["read password ; echo \$password"], function(){
+$ps = Process::run(["ping 127.0.0.1"], function($streamOutput){
 
 	echo $streamOutput;
 	//wait 5 seconds before continuing
 	// sleep(5);
 });
+
+// $p = $ps->current();
 
 // $p->write($password);
 // $p->closeInput();

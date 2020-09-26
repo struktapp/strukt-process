@@ -69,7 +69,7 @@ class Process{
         return stream_get_contents($this->stderr);
     }
 
-    public static function run($command, \Closure $callback = null){
+    public static function run(array $commands, \Closure $callback = null){
 
         $descrspec = array(
 
@@ -78,14 +78,22 @@ class Process{
             array('pipe', 'w')
         );
 
-        $process = proc_open($command, $descrspec, $outpipes, null, null);
+        foreach($commands as $cmd){
 
-        $newProcess = new self($process, ...$outpipes);
+            $process = proc_open($cmd, $descrspec, $outpipes, null, null);
 
-        if(!is_null($callback))
-            $newProcess->wait($callback);
+            $newProcess = new self($process, ...$outpipes);
 
-        return $newProcess;
+            $processes[] = $newProcess;
+        }
+
+        foreach($processes as $process){
+
+             if(!is_null($callback))
+                $process->wait($callback);
+        }
+
+        return new \ArrayIterator($processes);
     }
 
     public function isRunning(){
@@ -95,9 +103,9 @@ class Process{
         return $status['running'];
     }
 
-    public function terminate($signal = SIGTERM){
+    public function terminate(){
 
-        $isTerminated = proc_terminate($this->process, $signal);
+        $isTerminated = proc_terminate($this->process);
 
         if(!$isTerminated)
             throw new \Exception("Termination failed!");

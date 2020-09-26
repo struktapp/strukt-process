@@ -6,30 +6,30 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 
 	public function testProcessSuccess(){
 
-		$p = Process::run("dir");
+		$ps = Process::run(["dir"]);
 
-		$output = $p->read();
+		$output = $ps->current()->read();
 
 		$this->assertNotEmpty($output);
 	}
 
 	public function testProcessCallback(){
 
-		$p = Process::run("dir", function(){
+		$ps = Process::run(["dir"], function(){
 
 			sleep(2);
 		});
 
-		$output = $p->read();
+		$output = $ps->current()->read();
 
 		$this->assertNotEmpty($output);
 	}
 
 	public function testProcessFail(){
 
-		$p = Process::run("expr 2 / 0");
+		$ps = Process::run(["expr 2 / 0"]);
 
-		$error = $p->error();
+		$error = $ps->current()->error();
 
 		$this->assertEquals($error, "expr: division by zero\n");
 	}
@@ -47,7 +47,9 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 
 		$password = "p@55w0rd**9\n";
 
-		$p = Process::run("read password ; echo \$password");
+		$ps = Process::run(["read password ; echo \$password"]);
+
+		$p = $ps->current();
 
 		$p->write($password);
 		$p->closeInput();
