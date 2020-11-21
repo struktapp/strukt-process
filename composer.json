@@ -11,7 +11,7 @@
     "require": {
 
         "php": ">=7.0",
-        "strukt/commons": "1.0.0-alpha"
+        "strukt/commons": "1.0.1-alpha"
     },
     "require-dev": {
 
