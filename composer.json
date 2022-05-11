@@ -4,14 +4,14 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Moderator",
+            "name": "Samuel Weru",
             "email": "pitsolu@gmail.com"
         }
     ],
     "require": {
 
         "php": ">=7.0",
-        "strukt/commons": "v1.0.6-alpha"
+        "strukt/event": "dev-master"
     },
     "require-dev": {
 
@@ -20,5 +20,6 @@
     "autoload": {
 
         "psr-0": { "Strukt\\": "src/"}
-    }
+    },
+    "minimum-stability":"dev"
 }
