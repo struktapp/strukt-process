@@ -7,7 +7,7 @@ PHP Process Execution
 ## Installation
 
 ```sh
-composer require strukt/process dev-master
+composer require strukt/process v1.0.1
 ```
 
 ## Demo
