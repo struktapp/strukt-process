@@ -12,6 +12,8 @@ class Process{
     private $stderr;
     private $callback;
 
+    private static $switch = false;
+
     public function __construct($process, $stdin, $stdout, $stderr){
 
         $this->process = $process;
@@ -19,6 +21,17 @@ class Process{
         $this->stdin = $stdin;
         $this->stdout = $stdout;
         $this->stderr = $stderr;
+
+        if(static::$switch){
+
+            $this->stdout = $stderr;
+            $this->stderr = $stdout;
+        }
+    }
+
+    public static function switchChannels(bool $switch = true){
+
+        static::$switch = $switch;
     }
 
     public function getStatus(){
