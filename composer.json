@@ -11,7 +11,7 @@
     "require": {
 
         "php": ">=7.0",
-        "strukt/event": "v1.0.0-alpha"
+        "strukt/event": "v1.0.0"
     },
     "require-dev": {
 
