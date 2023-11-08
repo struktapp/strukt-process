@@ -56,6 +56,8 @@ class Process{
 
         while($this->isRunning())
             $evt->apply(fgets($this->stdout))->exec();
+
+        $evt->apply(null)->exec();
     }
     
     public function read(){
