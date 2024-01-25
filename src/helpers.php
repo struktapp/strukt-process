@@ -1,11 +1,16 @@
 <?php
 
-if(!function_exists("process")){
+helper("ps");
+
+if(helper_add("switchChannels")){
 
 	function switchChannels(bool $switch = true){
 
 		Strukt\Process::switchChannels($switch);
 	}
+}
+
+if(helper_add("process")){
 
 	function process(string|array $commands, \Closure $callback = null){
 
