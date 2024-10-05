@@ -93,10 +93,13 @@ class Process{
             array('pipe', 'w')
         );
 
-        $process = proc_open($cmd, $descrspec, $outpipes, null, null);
-        $process = new self($process, ...$outpipes);
-        $psls[] = $process;
-        $process->wait($callback??fn($o)=>$o);
+        foreach($commands as $cmd){
+            
+            $process = proc_open($cmd, $descrspec, $outpipes, null, null);
+            $process = new self($process, ...$outpipes);
+            $psls[] = $process;
+            $process->wait($callback??fn($o)=>$o);
+        }
 
         return new \ArrayIterator($psls);
     }
