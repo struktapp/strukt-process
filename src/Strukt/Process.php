@@ -47,7 +47,7 @@ class Process{
         if (!$this->stdin)
             throw new \Exception('STDIN has been closed!');
 
-        return fwrite($this->stdin, $str);
+        return fwrite($this->stdin, $str . PHP_EOL);
     }
 
     public function wait(\Closure $callback){
