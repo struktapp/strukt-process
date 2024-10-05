@@ -102,11 +102,14 @@ class Process{
             $processes[] = $newProcess;
         }
 
-        foreach($processes as $process){
+        foreach($processes as $process)
+            $process->wait($callback??fn($o)=>$o);
 
-             if(!is_null($callback))
-                $process->wait($callback);
-        }
+        // foreach($processes as $process){
+
+        //      if(!is_null($callback))
+        //         $process->wait($callback);
+        // }
 
         return new \ArrayIterator($processes);
     }
