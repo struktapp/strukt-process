@@ -93,25 +93,12 @@ class Process{
             array('pipe', 'w')
         );
 
-        foreach($commands as $cmd){
+        $process = proc_open($cmd, $descrspec, $outpipes, null, null);
+        $process = new self($process, ...$outpipes);
+        $psls[] = $process;
+        $process->wait($callback??fn($o)=>$o);
 
-            $process = proc_open($cmd, $descrspec, $outpipes, null, null);
-
-            $newProcess = new self($process, ...$outpipes);
-
-            $processes[] = $newProcess;
-        }
-
-        foreach($processes as $process)
-            $process->wait($callback??fn($o)=>$o);
-
-        // foreach($processes as $process){
-
-        //      if(!is_null($callback))
-        //         $process->wait($callback);
-        // }
-
-        return new \ArrayIterator($processes);
+        return new \ArrayIterator($psls);
     }
 
     public function isRunning(){
