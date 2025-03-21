@@ -4,7 +4,10 @@ helper("ps");
 
 if(helper_add("switchChannels")){
 
-	function switchChannels(bool $switch = true){
+	/**
+	 * @param boolean $switch
+	 */
+	function switchChannels(bool $switch = true):void{
 
 		Strukt\Process::switchChannels($switch);
 	}
@@ -12,7 +15,13 @@ if(helper_add("switchChannels")){
 
 if(helper_add("process")){
 
-	function process(string|array $commands, \Closure $callback = null){
+	/**
+	 * @param string|array $commands
+	 * @param \Closure $callback
+	 * 
+	 * @return \ArrayIterator
+	 */
+	function process(string|array $commands, \Closure $callback = null):\ArrayIterator{
 
 		$command_ls = [];
 		if(is_array($commands))

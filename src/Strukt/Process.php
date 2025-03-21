@@ -14,6 +14,12 @@ class Process{
 
     private static $switch = false;
 
+    /**
+     * @param resource $process
+     * @param resource $stdin
+     * @param resource $stdout
+     * @param resource $stderr
+     */
     public function __construct($process, $stdin, $stdout, $stderr){
 
         $this->process = $process;
@@ -29,12 +35,18 @@ class Process{
         }
     }
 
-    public static function switchChannels(bool $switch = true){
+    /**
+     * @param boolean $switch
+     */
+    public static function switchChannels(bool $switch = true):void{
 
         static::$switch = $switch;
     }
 
-    public function getStatus(){
+    /**
+     * @return array
+     */
+    public function getStatus():array{
 
         if(!is_resource($this->process))
             throw new \Exception("Process seems not to have been executed yet!");
@@ -42,7 +54,12 @@ class Process{
         return proc_get_status($this->process);
     }
 
-    public function write($str){
+    /**
+     * @param string $str
+     * 
+     * @return integer|bool
+     */
+    public function write(string $str):int|bool{
 
         if (!$this->stdin)
             throw new \Exception('STDIN has been closed!');
@@ -50,7 +67,12 @@ class Process{
         return fwrite($this->stdin, $str . PHP_EOL);
     }
 
-    public function wait(\Closure $callback){
+    /**
+     * @param \Closure $callback
+     * 
+     * @return void
+     */
+    public function wait(\Closure $callback):void{
 
         $evt = Event::create($callback);
 
@@ -60,7 +82,10 @@ class Process{
         $evt->apply(null)->exec();
     }
     
-    public function read(){
+    /**
+     * @return string|bool
+     */
+    public function read():string|bool{
 
         if (!$this->stdout)
             throw new \Exception('STDOUT has been closed!');
@@ -68,7 +93,10 @@ class Process{
         return stream_get_contents($this->stdout);
     }
 
-    public function readline(){
+    /**
+     * @return string|bool
+     */
+    public function readline():string|bool{
 
         if (!$this->stdout)
             throw new \Exception('STDOUT has been closed!');
@@ -76,7 +104,10 @@ class Process{
         return fgets($this->stdout);
     }
 
-    public function error(){
+    /**
+     * @return string|bool
+     */
+    public function error():string|bool{
 
         if (!$this->stderr)
             throw new \Exception('STDERR has been closed!');
@@ -84,7 +115,11 @@ class Process{
         return stream_get_contents($this->stderr);
     }
 
-    public static function run(array $commands, \Closure $callback = null){
+    /**
+     * @param array $commands
+     * @param \Closure $callback
+     */
+    public static function run(array $commands, ?\Closure $callback = null):\ArrayIterator{
 
         $descrspec = array(
 
@@ -104,14 +139,20 @@ class Process{
         return new \ArrayIterator($psls);
     }
 
-    public function isRunning(){
+    /**
+     * @return int|bool
+     */
+    public function isRunning():int|bool{
 
         $status = $this->getStatus();
 
         return $status['running'];
     }
 
-    public function terminate(){
+    /**
+     * @return void
+     */
+    public function terminate():void{
 
         $isTerminated = proc_terminate($this->process);
 
@@ -119,12 +160,18 @@ class Process{
             throw new \Exception("Termination failed!");
     }
 
-    public function close(){
+    /**
+     * @return integer
+     */
+    public function close():int{
 
         return proc_close($this->process);
     }
 
-    public function closeInput(){
+    /**
+     * @return boolean
+     */
+    public function closeInput():bool{
 
         $isClosed = true;
         if(is_resource($this->stdin))
@@ -133,7 +180,10 @@ class Process{
         return $isClosed;
     }
 
-    public function closeOutput(){
+    /**
+     * @return boolean
+     */
+    public function closeOutput():bool{
 
         $isClosed = true;
         if(is_resource($this->stdout))
@@ -142,7 +192,10 @@ class Process{
         return $isClosed;
     }
 
-    public function closeError(){
+    /**
+     * @return boolean
+     */
+    public function closeError():bool{
 
         $isClosed = true;
         if(is_resource($this->stderr))
@@ -151,7 +204,10 @@ class Process{
         return $isClosed;
     }
 
-    public function closePipes(){
+    /**
+     * @return void
+     */
+    public function closePipes():void{
 
         $this->closeInput();
         $this->closeOutput();
