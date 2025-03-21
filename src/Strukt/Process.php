@@ -118,6 +118,8 @@ class Process{
     /**
      * @param array $commands
      * @param \Closure $callback
+     * 
+     * @return \ArrayIterator
      */
     public static function run(array $commands, ?\Closure $callback = null):\ArrayIterator{
 
