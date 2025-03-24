@@ -3,14 +3,15 @@
 namespace Strukt;
 
 use Strukt\Event;
+use Strukt\Contract\AbstractProcess;
 
-class Process{
+/**
+ * @author Moderator <pitsolu@gmail.com>
+ */
+class Process extends AbstractProcess{
 
-    private $process;
-    private $stdin;
-    private $stdout;
-    private $stderr;
     private $callback;
+    private $buffer;
 
     private static $switch = false;
 
@@ -44,53 +45,30 @@ class Process{
     }
 
     /**
-     * @return array
-     */
-    public function getStatus():array{
-
-        if(!is_resource($this->process))
-            throw new \Exception("Process seems not to have been executed yet!");
-            
-        return proc_get_status($this->process);
-    }
-
-    /**
-     * @param string $str
-     * 
-     * @return integer|bool
-     */
-    public function write(string $str):int|bool{
-
-        if (!$this->stdin)
-            throw new \Exception('STDIN has been closed!');
-
-        return fwrite($this->stdin, $str . PHP_EOL);
-    }
-
-    /**
-     * @param \Closure $callback
+     * @param callable $callback
      * 
      * @return void
      */
-    public function wait(\Closure $callback):void{
+    public function wait(callable $callback):void{
 
         $evt = Event::create($callback);
 
-        while($this->isRunning())
-            $evt->apply(fgets($this->stdout))->exec();
+        $this->buffer = [];
+        while($this->isRunning()){
 
-        $evt->apply(null)->exec();
+            $evt->apply($line = fgets($this->stdout))->exec();
+            $this->buffer[] = $line;
+        }
     }
-    
-    /**
-     * @return string|bool
-     */
-    public function read():string|bool{
 
-        if (!$this->stdout)
-            throw new \Exception('STDOUT has been closed!');
-    
-        return stream_get_contents($this->stdout);
+    /**
+     * Output from buffer
+     * 
+     * @return string
+     */
+    public function output():string{
+
+        return implode("", array_filter($this->buffer, fn($o)=>!is_bool($o)));
     }
 
     /**
@@ -105,23 +83,12 @@ class Process{
     }
 
     /**
-     * @return string|bool
-     */
-    public function error():string|bool{
-
-        if (!$this->stderr)
-            throw new \Exception('STDERR has been closed!');
-
-        return stream_get_contents($this->stderr);
-    }
-
-    /**
      * @param array $commands
-     * @param \Closure $callback
+     * @param callable $callback
      * 
      * @return \ArrayIterator
      */
-    public static function run(array $commands, ?\Closure $callback = null):\ArrayIterator{
+    public static function run(array $commands, ?callable $callback = null):\ArrayIterator{
 
         $descrspec = array(
 
@@ -130,97 +97,55 @@ class Process{
             array('pipe', 'w')
         );
 
-        foreach($commands as $cmd){
+        $buffer = [];
+        $processes = [];
+        foreach($commands as $idx=>$cmd){
             
             $process = proc_open($cmd, $descrspec, $outpipes, null, null);
             $process = new self($process, ...$outpipes);
-            $psls[] = $process;
-            $process->wait($callback??fn($o)=>$o);
+            $processes[] = $process;
+            $process->wait($callback??function(string $out) use($idx, &$buffer){
+
+                $buffer[$idx][] = $out;
+            });
         }
 
-        return new \ArrayIterator($psls);
-    }
+        return new class($processes, $buffer) extends \ArrayIterator{
 
-    /**
-     * @return int|bool
-     */
-    public function isRunning():int|bool{
+            private $processes;
+            private $buffer;
 
-        $status = $this->getStatus();
+            /**
+             * @param array $processes
+             * @param array $buffer
+             */
+            public function __construct(array $processes, array $buffer){
 
-        return $status['running'];
-    }
+                parent::__construct($processes);
 
-    /**
-     * @return void
-     */
-    public function terminate():void{
+                $this->processes = $processes;
+                $this->buffer = $buffer;
+            }
 
-        $isTerminated = proc_terminate($this->process);
+            /**
+             * @param int $idx
+             * 
+             * @return \Strukt\Process
+             */
+            public function resource(int $idx = 0):\Strukt\Process{
 
-        if(!$isTerminated)
-            throw new \Exception("Termination failed!");
-    }
+                return $this->processes[$idx];
+            }
 
-    /**
-     * @return integer
-     */
-    public function close():int{
+            /**
+             * @param int $idx
+             * 
+             * @return string|null
+             */
+            public function outputs(int $idx = 0):string|null{
 
-        return proc_close($this->process);
-    }
-
-    /**
-     * @return boolean
-     */
-    public function closeInput():bool{
-
-        $isClosed = true;
-        if(is_resource($this->stdin))
-            $isClosed = fclose($this->stdin);
-
-        return $isClosed;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function closeOutput():bool{
-
-        $isClosed = true;
-        if(is_resource($this->stdout))
-            $isClosed = fclose($this->stdout);
-
-        return $isClosed;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function closeError():bool{
-
-        $isClosed = true;
-        if(is_resource($this->stderr))
-            $isClosed = fclose($this->stderr);
-
-        return $isClosed;
-    }
-
-    /**
-     * @return void
-     */
-    public function closePipes():void{
-
-        $this->closeInput();
-        $this->closeOutput();
-        $this->closeError();
-    }
-
-    public function __destruct(){
-
-        $this->closePipes();
-
-        if($this->isRunning())
-            $this->terminate();
+                return $this->buffer?implode("", $this->buffer[$idx]):null;
+            }
+        };
     }
 }

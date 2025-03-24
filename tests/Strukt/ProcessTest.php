@@ -1,6 +1,7 @@
 <?php
 
 use Strukt\Process;
+use Strukt\ProcessIn;
 
 class ProcessTest extends PHPUnit\Framework\TestCase{
 
@@ -8,7 +9,7 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 
 		$ps = Process::run(["dir"]);
 
-		$output = $ps->current()->read();
+		$output = $ps->outputs();
 
 		$this->assertNotEmpty($output);
 	}
@@ -20,7 +21,7 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 			sleep(2);
 		});
 
-		$output = $ps->current()->read();
+		$output = $ps->current()->output();
 
 		$this->assertNotEmpty($output);
 	}
@@ -29,7 +30,7 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 
 		$ps = Process::run(["expr 2 / 0"]);
 
-		$error = $ps->current()->error();
+		$error = $ps->resource()->error();
 
 		$this->assertEquals($error, "expr: division by zero\n");
 	}
@@ -47,14 +48,11 @@ class ProcessTest extends PHPUnit\Framework\TestCase{
 
 		$password = "p@55w0rd**9\n";
 
-		$ps = Process::run(["read password ; echo \$password"]);
+		$ps = ProcessIn::run("read password ; echo \$password");
+		$ps->write($password);
+		$ps->closeInput();
 
-		$p = $ps->current();
-
-		$p->write($password);
-		$p->closeInput();
-
-		$output = $p->read();
+		$output = $ps->read();
 
 		$this->assertEquals($output, $password);
 	}
