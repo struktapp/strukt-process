@@ -1,4 +1,4 @@
-# Process
+# Strukt Process
 [![Build Status](https://travis-ci.org/strukt/process.svg?branch=master)](https://travis-ci.org/strukt/process)
 
 
