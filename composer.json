@@ -1,0 +1,36 @@
+{
+    "name": "strukt/process",
+    "description": "Process",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Strukt\\": "src/Strukt/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "pitsolu",
+            "email": "pitsolu@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require":{
+        "strukt/base":"dev-changes",
+        "strukt/event":"dev-changes"
+    },
+    "require-dev": {
+        "pestphp/pest": "4.x-dev",
+        "symfony/var-dumper": "6.4.x-dev"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
