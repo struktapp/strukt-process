@@ -37,7 +37,7 @@ abstract class AbstractProcess implements ProcessInterface
      *
      * @throws \RuntimeException When this object no longer owns a process.
      */
-    public function getStatus(): array
+    public function status(): array
     {
         if (!is_resource($this->process)) {
             throw new \RuntimeException('The process handle is closed.');

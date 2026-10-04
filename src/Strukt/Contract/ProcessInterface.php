@@ -14,7 +14,7 @@ interface ProcessInterface
      *
      * @throws \RuntimeException When the process handle is unavailable.
      */
-    public function getStatus(): array;
+    public function status(): array;
 
     /**
      * Reads available standard output.
