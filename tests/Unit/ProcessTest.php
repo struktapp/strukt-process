@@ -73,5 +73,5 @@ test('supports interactive prompt input', function (): void {
 });
 
 test('registers every process helper', function (): void {
-    expect(helper('process'))->toContain('switchChannels', 'process', 'pprocess');
+    expect(helper('process'))->toContain('switchChannels', 'process', 'pprocess', 'pool', 'supervisor');
 });

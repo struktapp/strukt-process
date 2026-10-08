@@ -5,7 +5,8 @@
     "license": "MIT",
     "require": {
         "php": ">=8.2",
-        "strukt/base": "dev-main"
+        "strukt/base": "dev-main",
+        "strukt/console": "dev-main"
     },
     "require-dev": {
         "pestphp/pest": "^4.0"
@@ -26,14 +27,31 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../base",
+            "url": "../../strukt3/base",
             "options": {
-                "symlink": false
+                "symlink": false,
+                "versions": {
+                    "strukt/base": "dev-main"
+                }
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../strukt3/console",
+            "options": {
+                "symlink": false,
+                "versions": {
+                    "strukt/console": "dev-main"
+                }
             }
         }
     ],
+    "bin": [
+        "bin/supervise"
+    ],
     "scripts": {
-        "test": "pest"
+        "test": "pest",
+        "lint": "find src bin tests -name '*.php' -print0 | xargs -0 -n1 php -l"
     },
     "config": {
         "allow-plugins": {

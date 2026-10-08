@@ -9,8 +9,13 @@ use Strukt\Contract\AbstractProcess as CompatibleProcess;
  */
 class Process extends CompatibleProcess
 {
-    /** Whether logical output and error channels should be swapped. */
+    /**
+     * Whether logical output and error channels should be swapped.
+     */
     private static bool $switch = false;
+
+    /** Pending partial output line for poll(). */
+    private string $pollBuffer = '';
 
     /**
      * Creates a process from proc_open resources.
@@ -139,6 +144,92 @@ class Process extends CompatibleProcess
     public function output(): string
     {
         return $this->capturedOutput();
+    }
+
+    /**
+     * Drains whatever output is available right now without blocking.
+     *
+     * Complete standard-output lines are dispatched to the callback and
+     * retained for output(); standard error is drained and retained only. A
+     * trailing fragment without a newline is delivered once the process exits,
+     * so callers can poll() from a supervisor loop and never lose the tail.
+     *
+     * @param callable|null $callback Callback receiving complete output lines.
+     * @return bool True while the process is still running.
+     */
+    public function poll(?callable $callback = null): bool
+    {
+        $callback ??= static function (string $line): void {
+        };
+
+        $streams = [];
+        if (is_resource($this->stdout)) {
+            stream_set_blocking($this->stdout, false);
+            $streams[] = $this->stdout;
+        }
+
+        if (is_resource($this->stderr)) {
+            stream_set_blocking($this->stderr, false);
+            $streams[] = $this->stderr;
+        }
+
+        if ($streams === []) {
+            $this->flushPollBuffer($callback);
+
+            return false;
+        }
+        $read = $streams;
+        $write = null;
+        $except = null;
+        $selected = @stream_select($read, $write, $except, 0, 100000);
+
+        if ($selected === false || $selected === 0) {
+            return $this->isRunning();
+        }
+
+        foreach ($read as $stream) {
+            $chunk = @fread($stream, 8192);
+
+            if ($chunk === false || $chunk === '') {
+                continue;
+            }
+
+            if ($stream === $this->stdout) {
+                $this->recordOutput($chunk);
+                $this->pollBuffer .= $chunk;
+                $this->dispatchLines($this->pollBuffer, $callback);
+            } else {
+                $this->recordError($chunk);
+            }
+        }
+
+        if (!$this->isRunning()) {
+            $this->flushPollBuffer($callback);
+        }
+
+        return $this->isRunning();
+    }
+
+    /**
+     * Delivers any buffered output that never ended in a newline, then clears
+     * the pending fragment.
+     *
+     * @param callable $callback Output callback.
+     * @return void
+     */
+    private function flushPollBuffer(callable $callback): void
+    {
+        if ($this->pollBuffer === '') {
+            return;
+        }
+
+        $this->dispatchLines($this->pollBuffer, $callback);
+
+        if ($this->pollBuffer !== '') {
+            $callback($this->pollBuffer);
+
+            $this->pollBuffer = '';
+        }
     }
 
     /**

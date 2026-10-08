@@ -3,7 +3,9 @@
 use Strukt\Contract\PromptableProcessInterface;
 use Strukt\Pprocess;
 use Strukt\Process;
+use Strukt\ProcessPool;
 use Strukt\ProcessResult;
+use Strukt\ProcessSupervisor;
 
 if (function_exists('helper')) {
     helper('process');
@@ -54,5 +56,49 @@ if (!function_exists('pprocess') && function_exists('helper_add') && helper_add(
     function pprocess(string $command): PromptableProcessInterface
     {
         return Pprocess::run($command);
+    }
+}
+
+if (!function_exists('pool') && function_exists('helper_add') && helper_add('pool')) {
+    /**
+     * Starts a pool of concurrent worker processes and returns it.
+     *
+     * @param int $size Number of worker processes to keep.
+     * @param string|list<string> $command Command passed to proc_open().
+     * @param string|null $cwd Optional working directory for the workers.
+     * @param array<string, string>|null $env Optional environment overrides.
+     * @return ProcessPool Managed worker pool.
+     *
+     * @throws \RuntimeException When a worker cannot be started.
+     */
+    function pool(int $size, string|array $command, ?string $cwd = null, ?array $env = null): ProcessPool
+    {
+        $instance = new ProcessPool($size);
+        $instance->start($command, $cwd, $env);
+
+        return $instance;
+    }
+}
+
+if (!function_exists('supervisor') && function_exists('helper_add') && helper_add('supervisor')) {
+    /**
+     * Starts a pool of worker processes that restarts any worker that dies.
+     *
+     * @param int $size Number of worker processes to keep.
+     * @param string|list<string> $command Command passed to proc_open().
+     * @param int $restartCap Maximum restarts per slot before giving up; -1 for unlimited.
+     * @param float $backoff Minimum seconds between restarts of the same slot.
+     * @param string|null $cwd Optional working directory for the workers.
+     * @param array<string, string>|null $env Optional environment overrides.
+     * @return ProcessSupervisor Supervised worker pool.
+     *
+     * @throws \RuntimeException When a worker cannot be started.
+     */
+    function supervisor(int $size, string|array $command, int $restartCap = -1, float $backoff = 0.0, ?string $cwd = null, ?array $env = null): ProcessSupervisor
+    {
+        $instance = new ProcessSupervisor($size, $restartCap, $backoff);
+        $instance->start($command, $cwd, $env);
+
+        return $instance;
     }
 }
