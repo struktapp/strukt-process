@@ -4,14 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "428f9d74fcc7123fc09d1bc9d2bf4aeb",
+    "content-hash": "7e3148f147b77292c3b1718b7adec9f6",
     "packages": [
         {
             "name": "strukt/base",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../../strukt3/base",
+                "url": "../../strukt4/base",
                 "reference": "d6a0d25005c989a225cd031beb47cb736178a268"
             },
             "require": {
@@ -59,7 +59,7 @@
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "../../strukt3/console",
+                "url": "../../strukt4/console",
                 "reference": "f4816b1ac279608c268955c8e927d8bd1812da5d"
             },
             "require": {
